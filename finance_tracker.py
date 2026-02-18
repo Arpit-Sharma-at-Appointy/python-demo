@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from collections import defaultdict
 
 DATA_FILE = "data.json"
 
@@ -42,12 +43,14 @@ def add_transaction(transactions):
         return
 
     description = input("Description: ")
+    category = input("Category (e.g., Food, Transport, Salary): ")
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     transaction = {
         "type": type_input,
         "amount": amount,
         "description": description,
+        "category": category,
         "date": date
     }
 
@@ -62,10 +65,10 @@ def view_transactions(transactions):
         print("No transactions found.")
         return
 
-    print(f"{'Date':<20} | {'Type':<10} | {'Amount':<10} | {'Description'}")
-    print("-" * 60)
+    print(f"{'Date':<20} | {'Type':<10} | {'Amount':<10} | {'Category':<15} | {'Description'}")
+    print("-" * 80)
     for t in transactions:
-        print(f"{t['date']:<20} | {t['type']:<10} | {t['amount']:<10.2f} | {t['description']}")
+        print(f"{t['date']:<20} | {t['type']:<10} | {t['amount']:<10.2f} | {t.get('category', 'N/A'):<15} | {t['description']}")
 
 def view_summary(transactions):
     """Displays financial summary."""
@@ -77,6 +80,19 @@ def view_summary(transactions):
     print(f"Total Income:   ${total_income:.2f}")
     print(f"Total Expense:  ${total_expense:.2f}")
     print(f"Net Balance:    ${balance:.2f}")
+
+    print("\n--- Expenses by Category ---")
+    expenses_by_category = defaultdict(float)
+    for t in transactions:
+        if t['type'] == 'expense':
+            expenses_by_category[t.get('category', 'Uncategorized')] += t['amount']
+
+    if not expenses_by_category:
+        print("No expenses to categorize.")
+    else:
+        for category, total in expenses_by_category.items():
+            print(f"{category:<20}: ${total:.2f}")
+
 
 def main():
     transactions = load_data()
