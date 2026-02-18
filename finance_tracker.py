@@ -1,5 +1,6 @@
 import json
 import os
+import csv
 from datetime import datetime
 from collections import defaultdict
 
@@ -93,6 +94,29 @@ def view_summary(transactions):
         for category, total in expenses_by_category.items():
             print(f"{category:<20}: ${total:.2f}")
 
+def export_to_csv(transactions):
+    """Exports transactions to a CSV file."""
+    print("\n--- Export to CSV ---")
+    if not transactions:
+        print("No transactions to export.")
+        return
+    
+    filename = input("Enter filename for CSV export (e.g., transactions.csv): ")
+    if not filename.endswith('.csv'):
+        filename += '.csv'
+        
+    try:
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            # Write header
+            writer.writerow(['Date', 'Type', 'Amount', 'Category', 'Description'])
+            # Write data
+            for t in transactions:
+                writer.writerow([t['date'], t['type'], t['amount'], t.get('category', 'N/A'), t['description']])
+        print(f"Transactions successfully exported to {filename}")
+    except (IOError, PermissionError) as e:
+        print(f"Error exporting to CSV: {e}")
+
 
 def main():
     transactions = load_data()
@@ -102,9 +126,10 @@ def main():
         print("1. Add Transaction")
         print("2. View Transactions")
         print("3. View Summary")
-        print("4. Exit")
+        print("4. Export to CSV")
+        print("5. Exit")
 
-        choice = input("Enter your choice (1-4): ")
+        choice = input("Enter your choice (1-5): ")
 
         if choice == '1':
             add_transaction(transactions)
@@ -113,6 +138,8 @@ def main():
         elif choice == '3':
             view_summary(transactions)
         elif choice == '4':
+            export_to_csv(transactions)
+        elif choice == '5':
             print("Goodbye!")
             break
         else:
