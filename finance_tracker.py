@@ -44,7 +44,19 @@ def add_transaction(transactions):
 
     description = input("Description: ")
     category = input("Category (e.g., Food, Transport, Salary): ")
-    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    date_input = input("Date (YYYY-MM-DD, default: today): ")
+    if not date_input:
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        try:
+            date_obj = datetime.strptime(date_input, "%Y-%m-%d")
+            time_part = datetime.now().time()
+            final_datetime = datetime.combine(date_obj.date(), time_part)
+            date = final_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            print("Invalid date format. Please use YYYY-MM-DD.")
+            return
 
     transaction = {
         "type": type_input,
